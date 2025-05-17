@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F1F1F1">
@@ -22,20 +23,21 @@
             android:elevation="6dp"
             android:padding="16dp" />
 
-        <!-- Email -->
+        <!-- Input Email -->
         <EditText
             android:id="@+id/emailEditText"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="32dp"
-            android:hint="email"
+            android:hint="@string/email"
             android:background="@drawable/input_background"
             android:paddingStart="16dp"
             android:inputType="textEmailAddress"
             android:textColor="@android:color/black"
-            android:textColorHint="#999"/>
+            android:textColorHint="#999"
+            tools:ignore="RtlSymmetry" />
 
-        <!-- Password -->
+        <!-- Input Password -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -46,7 +48,7 @@
                 android:id="@+id/passwordEditText"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="password"
+                android:hint="@string/password"
                 android:inputType="textPassword"
                 android:paddingStart="16dp"
                 android:paddingEnd="48dp"
@@ -54,6 +56,7 @@
                 android:textColor="@android:color/black"
                 android:textColorHint="#999"/>
 
+            <!-- Ikon untuk melihat password -->
             <ImageView
                 android:id="@+id/showPasswordIcon"
                 android:layout_width="24dp"
@@ -62,7 +65,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="12dp"
                 android:src="@android:drawable/ic_menu_view"
-                android:contentDescription="Lihat Password" />
+                android:contentDescription="@string/lihat_password" />
         </RelativeLayout>
 
         <!-- Tombol Login -->
@@ -71,7 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="24dp"
-            android:text="Login"
+            android:text="@string/login"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:backgroundTint="#1D5C2F" />
@@ -84,16 +87,21 @@
             android:layout_marginTop="16dp">
 
             <TextView
-                android:text="belum punya akun?"
+                android:text="@string/belum_punya_akun"
                 android:textColor="#000000"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
             <TextView
                 android:id="@+id/registerText"
-                android:text=" Daftar"
+                android:text="@string/daftar"
                 android:textColor="#1D5C2F"
                 android:textStyle="bold"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
         </LinearLayout>
+
     </LinearLayout>
 </ScrollView>
