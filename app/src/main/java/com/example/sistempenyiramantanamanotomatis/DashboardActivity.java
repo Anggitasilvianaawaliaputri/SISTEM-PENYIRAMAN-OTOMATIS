@@ -3,89 +3,105 @@ package com.example.sistempenyiramantanamanotomatis;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.ProgressBar;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 public class DashboardActivity extends AppCompatActivity {
 
     private ProgressBar progressMoisture;
-    private Switch switchAuto;
+    private TextView txtProgressPercentage;
     private TextView txtPumpStatus, txtStatusTanah;
-    private TextView txtOnLabel, txtOffLabel; // Tambahan label ON/OFF
+    private TextView txtOnLabel, txtOffLabel;
+    private SwitchMaterial switchAuto;
 
-    private int simulatedMoisture = 65; // nilai awal (bisa diganti dari database nantinya)
+    private int simulatedMoisture = 65;
+    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        // Inisialisasi view dari XML
+        // Bind View
         progressMoisture = findViewById(R.id.progress_moisture);
-        switchAuto = findViewById(R.id.switch_auto);
+        txtProgressPercentage = findViewById(R.id.progress_text);
         txtPumpStatus = findViewById(R.id.txt_pump_status);
         txtStatusTanah = findViewById(R.id.txt_status_tanah);
-        txtOnLabel = findViewById(R.id.text_on);   // Ambil TextView ON
-        txtOffLabel = findViewById(R.id.text_off); // Ambil TextView OFF
+        txtOnLabel = findViewById(R.id.text_on);
+        txtOffLabel = findViewById(R.id.text_off);
+        switchAuto = findViewById(R.id.switch_auto);
 
-        // Set nilai awal progress dan status tanah
+        // Inisialisasi awal
         progressMoisture.setProgress(simulatedMoisture);
+        updateProgressText(simulatedMoisture);
         updateSoilStatus(simulatedMoisture);
-
-        // Set label awal switch
         updateSwitchLabels(switchAuto.isChecked());
 
-        // Listener untuk Switch
+        // Switch Listener
         switchAuto.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 Toast.makeText(this, "Penyiraman Otomatis Aktif", Toast.LENGTH_SHORT).show();
-                txtPumpStatus.setText("Sedang Menyiram");
+                txtPumpStatus.setText("Pompa Menyala");
             } else {
                 Toast.makeText(this, "Penyiraman Otomatis Nonaktif", Toast.LENGTH_SHORT).show();
                 txtPumpStatus.setText("Pompa Mati");
             }
-
             updateSwitchLabels(isChecked);
         });
 
-        // Simulasi perubahan kelembaban
+        // Jalankan simulasi kelembaban
         simulateMoistureChange();
     }
 
+    // Update text di tengah progress
+    private void updateProgressText(int value) {
+        txtProgressPercentage.setText(value + "%");
+    }
+
+    // Update status tanah
     private void updateSoilStatus(int moistureValue) {
         if (moistureValue >= 70) {
-            txtStatusTanah.setText("Tanah Basah");
+            txtStatusTanah.setText("Basah");
         } else if (moistureValue >= 40) {
-            txtStatusTanah.setText("Tanah Cukup");
+            txtStatusTanah.setText("Cukup");
         } else {
-            txtStatusTanah.setText("Tanah Kering");
+            txtStatusTanah.setText("Kering");
         }
     }
 
+    // Update label ON/OFF
+    private void updateSwitchLabels(boolean isChecked) {
+        if (isChecked) {
+            txtOnLabel.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+            txtOffLabel.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray));
+        } else {
+            txtOnLabel.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray));
+            txtOffLabel.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+        }
+    }
+
+    // Simulasi kelembaban berubah tiap 5 detik
     private void simulateMoistureChange() {
-        new Handler().postDelayed(() -> {
+        handler.postDelayed(() -> {
             simulatedMoisture += (Math.random() > 0.5 ? 5 : -5);
-            if (simulatedMoisture < 0) simulatedMoisture = 0;
-            if (simulatedMoisture > 100) simulatedMoisture = 100;
+            simulatedMoisture = Math.max(0, Math.min(simulatedMoisture, 100));
 
             progressMoisture.setProgress(simulatedMoisture);
+            updateProgressText(simulatedMoisture);
             updateSoilStatus(simulatedMoisture);
 
             simulateMoistureChange();
         }, 5000);
     }
 
-    // Fungsi untuk memperbarui tampilan teks ON/OFF sesuai status Switch
-    private void updateSwitchLabels(boolean isChecked) {
-        if (isChecked) {
-            txtOnLabel.setTextColor(getResources().getColor(android.R.color.white));
-            txtOffLabel.setTextColor(getResources().getColor(android.R.color.darker_gray));
-        } else {
-            txtOnLabel.setTextColor(getResources().getColor(android.R.color.darker_gray));
-            txtOffLabel.setTextColor(getResources().getColor(android.R.color.white));
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
     }
 }

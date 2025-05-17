@@ -1,9 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
+    <!-- Base theme -->
     <style name="Base.Theme.SISTEMPENYIRAMANTANAMANOTOMATIS" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Tambahkan warna atau atribut lainnya di sini jika perlu -->
+        <!-- <item name="colorPrimary">@color/your_primary_color</item> -->
     </style>
 
+    <!-- App theme -->
     <style name="Theme.SISTEMPENYIRAMANTANAMANOTOMATIS" parent="Base.Theme.SISTEMPENYIRAMANTANAMANOTOMATIS" />
+
 </resources>

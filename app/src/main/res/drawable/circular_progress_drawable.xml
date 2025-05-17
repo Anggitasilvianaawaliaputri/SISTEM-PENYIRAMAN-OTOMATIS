@@ -1,0 +1,16 @@
+<rotate xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fromDegrees="0"
+    android:toDegrees="0">
+    <shape
+        android:shape="ring"
+        android:useLevel="true"
+        android:thicknessRatio="10"
+        android:innerRadiusRatio="3">
+    <size android:width="120dp" android:height="120dp" />
+    <gradient
+        android:startColor="#8BC34A"
+        android:endColor="#0D4D22"
+        android:type="sweep"
+        android:useLevel="true" />
+</shape>
+    </rotate>

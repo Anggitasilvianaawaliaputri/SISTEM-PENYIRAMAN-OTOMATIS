@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="chart_image" type="id">id/chart_image</item>
+    <item name="chart_image" type="id" />
     <item name="app_title" type="id" />
     <item name="top_bar" type="id" />
     <item name="btn_profile" type="id" />

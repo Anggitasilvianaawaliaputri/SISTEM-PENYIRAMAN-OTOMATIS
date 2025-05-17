@@ -2,4 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Tambahan warna untuk Switch -->
+    <color name="switch_track_green">#8BC34A</color>
+    <color name="switch_thumb_white">#FFFFFFFF</color>
 </resources>
