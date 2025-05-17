@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "21566960780",
+    "project_id": "sistem-penyiraman-otomat-4bdd3",
+    "storage_bucket": "sistem-penyiraman-otomat-4bdd3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:21566960780:android:1bbf05fd41791225fcb7a9",
+        "android_client_info": {
+          "package_name": "com.example.sistempenyiramantanamanotomatis"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASGzxhljLWEZS7LdhKrUNfofScQNh2gKQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
