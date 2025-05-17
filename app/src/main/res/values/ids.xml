@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="chart_image" type="id">id/chart_image</item>
+    <item name="app_title" type="id" />
+    <item name="top_bar" type="id" />
+    <item name="btn_profile" type="id" />
+    <item name="btn_notif" type="id" />
+    <item name="progress_moisture" type="id" />
+    <item name="status_card_container" type="id" />
+    <item name="text_on" type="id" />
+    <item name="switch_auto" type="id" />
+    <item name="text_off" type="id" />
+    <item name="txt_pump_status" type="id" />
+    <item name="status_tanah_card" type="id" />
+    <item name="txt_status_tanah" type="id" />
+    <item name="bottom_nav" type="id" />
+</resources>
