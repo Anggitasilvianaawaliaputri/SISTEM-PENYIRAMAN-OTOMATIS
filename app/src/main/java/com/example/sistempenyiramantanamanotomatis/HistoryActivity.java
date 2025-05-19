@@ -1,8 +1,8 @@
 package com.example.sistempenyiramantanamanotomatis;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -10,45 +10,54 @@ import android.widget.LinearLayout.LayoutParams;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 public class HistoryActivity extends AppCompatActivity {
 
     LinearLayout historyContainer;
-    LinearLayout navDashboard, navHistory, navProfile;
     ImageView backButton;
+    BottomNavigationView bottomNav;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
 
-        // Inisialisasi View
+        // Inisialisasi view
         historyContainer = findViewById(R.id.historyContainer);
-        navDashboard = findViewById(R.id.nav_dashboard);
-        navHistory = findViewById(R.id.nav_history);
-        navProfile = findViewById(R.id.nav_profile);
-        backButton = findViewById(R.id.backButton);
+        bottomNav = findViewById(R.id.bottom_nav);
 
-        // Tombol kembali
+        // Atur item yang sedang dipilih
+        bottomNav.setSelectedItemId(R.id.navigation_history);
+
+        // Tombol kembali ke halaman sebelumnya
         backButton.setOnClickListener(v -> finish());
 
-        // Navigasi ke halaman lain
-        navDashboard.setOnClickListener(v -> {
-            Intent intent = new Intent(HistoryActivity.this, DashboardActivity.class);
-            startActivity(intent);
-            finish();
+        // Listener navigasi bawah
+        bottomNav.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.navigation_dashboard) {
+                startActivity(new Intent(HistoryActivity.this, DashboardActivity.class));
+                finish();
+                return true;
+            } else if (itemId == R.id.navigation_profile) {
+                startActivity(new Intent(HistoryActivity.this, ProfileActivity.class));
+                finish();
+                return true;
+            } else if (itemId == R.id.navigation_history) {
+                // Halaman saat ini
+                return true;
+            }
+            return false;
         });
 
-        navProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(HistoryActivity.this, ProfileActivity.class);
-            startActivity(intent);
-            finish();
-        });
-
-        // Data dummy - bisa diganti dengan data dari Firebase/SQLite
+        // Tambahkan data dummy (simulasi)
         addHistoryItem("10-04-2025", 52, true);
         addHistoryItem("11-04-2025", 49, false);
     }
 
+    // Fungsi menambah tampilan history secara dinamis
     private void addHistoryItem(String tanggal, int kelembaban, boolean aktif) {
         LinearLayout itemLayout = new LinearLayout(this);
         itemLayout.setOrientation(LinearLayout.VERTICAL);
@@ -59,7 +68,7 @@ public class HistoryActivity extends AppCompatActivity {
         params.setMargins(0, 0, 0, 24);
         itemLayout.setLayoutParams(params);
         itemLayout.setPadding(24, 24, 24, 24);
-        itemLayout.setBackgroundResource(R.drawable.history_item_bg); // Gunakan drawable bulat hijau muda
+        itemLayout.setBackgroundResource(R.drawable.history_item_bg); // Drawable item (bisa berbentuk rounded bg)
 
         TextView txtTanggal = new TextView(this);
         txtTanggal.setText("Tanggal : " + tanggal);
@@ -76,12 +85,12 @@ public class HistoryActivity extends AppCompatActivity {
         txtStatus.setText("Penyiraman " + (aktif ? "aktif" : "tidak aktif"));
         txtStatus.setTextColor(getResources().getColor(android.R.color.black));
 
-        // Tambahkan ke layout item
+        // Tambahkan TextView ke layout item
         itemLayout.addView(txtTanggal);
         itemLayout.addView(txtKelembaban);
         itemLayout.addView(txtStatus);
 
-        // Tambahkan ke container utama
+        // Tambahkan layout item ke container utama
         historyContainer.addView(itemLayout);
     }
 }
