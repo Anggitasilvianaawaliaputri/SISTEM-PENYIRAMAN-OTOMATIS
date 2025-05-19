@@ -42,19 +42,21 @@ public class DashboardActivity extends AppCompatActivity {
 
         // BottomNavigationView
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_dashboard); // Tandai aktif
+
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
             if (itemId == R.id.navigation_dashboard) {
-                Toast.makeText(DashboardActivity.this, "Dashboard dipilih", Toast.LENGTH_SHORT).show();
+                // Sudah di dashboard, tidak perlu pindah
                 return true;
             } else if (itemId == R.id.navigation_history) {
-                Toast.makeText(DashboardActivity.this, "History dipilih", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(DashboardActivity.this, HistoryActivity.class));
+                finish(); // Tutup activity ini agar tidak numpuk
                 return true;
             } else if (itemId == R.id.navigation_profile) {
-                Toast.makeText(DashboardActivity.this, "Profile dipilih", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(DashboardActivity.this, ProfileActivity.class));
+                finish(); // Tutup activity ini agar tidak numpuk
                 return true;
             } else {
                 return false;

@@ -27,12 +27,13 @@ public class HistoryActivity extends AppCompatActivity {
         // Inisialisasi view
         historyContainer = findViewById(R.id.historyContainer);
         bottomNav = findViewById(R.id.bottom_nav);
-
-        // Atur item yang sedang dipilih
-        bottomNav.setSelectedItemId(R.id.navigation_history);
+        backButton = findViewById(R.id.back_button); // Tambahkan inisialisasi ini!
 
         // Tombol kembali ke halaman sebelumnya
         backButton.setOnClickListener(v -> finish());
+
+        // Atur item yang sedang dipilih
+        bottomNav.setSelectedItemId(R.id.navigation_history);
 
         // Listener navigasi bawah
         bottomNav.setOnItemSelectedListener(item -> {

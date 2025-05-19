@@ -4,11 +4,13 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -16,13 +18,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.util.UUID;
 
@@ -35,6 +37,7 @@ public class ProfileActivity extends AppCompatActivity {
     private StorageReference storageRef;
 
     private ImageView profileImageView;
+    private ImageView backButton;
     private TextView nameTextView, emailTextView;
     private ProgressDialog progressDialog;
 
@@ -52,22 +55,49 @@ public class ProfileActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Firebase
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         storageRef = FirebaseStorage.getInstance().getReference();
 
+        // View binding
         profileImageView = findViewById(R.id.profile_image);
+        backButton = findViewById(R.id.back_button);
         nameTextView = findViewById(R.id.name_text);
         emailTextView = findViewById(R.id.email_text);
         progressDialog = new ProgressDialog(this);
 
+        // Load user data
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             userId = currentUser.getUid();
             loadUserData(userId);
         }
 
+        // Ganti foto profil
         profileImageView.setOnClickListener(v -> openImagePicker());
+
+        // Tombol back
+        backButton.setOnClickListener(v -> onBackPressed());
+
+        // Bottom navigation
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_profile); // current menu item
+        bottomNavigationView.setOnItemSelectedListener(this::onNavigationItemSelected);
+    }
+
+    private boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.navigation_dashboard) {
+            startActivity(new Intent(this, DashboardActivity.class));
+            return true;
+        } else if (id == R.id.navigation_history) {
+            startActivity(new Intent(this, HistoryActivity.class));
+            return true;
+        } else if (id == R.id.navigation_profile) {
+            return true;
+        }
+        return false;
     }
 
     private void loadUserData(String uid) {
