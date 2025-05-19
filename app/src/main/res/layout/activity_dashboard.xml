@@ -6,12 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <!-- Judul -->
-
-    <!-- Top Bar -->
-
-    <!-- Circular Progress -->
-
     <TextView
         android:id="@+id/app_title"
         android:layout_width="wrap_content"
