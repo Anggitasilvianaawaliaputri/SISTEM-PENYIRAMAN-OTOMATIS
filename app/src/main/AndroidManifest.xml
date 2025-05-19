@@ -14,9 +14,14 @@
         android:theme="@style/Theme.SISTEMPENYIRAMANTANAMANOTOMATIS"
         tools:targetApi="31">
         <activity
-            android:name=".DashboardActivity"
+            android:name=".ProfileActivity"
             android:exported="false" />
-        <!-- SplashActivity sebagai launcher utama -->
+        <activity
+            android:name=".HistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false" /> <!-- SplashActivity sebagai launcher utama -->
         <activity
             android:name=".SplashActivity"
             android:exported="true">
