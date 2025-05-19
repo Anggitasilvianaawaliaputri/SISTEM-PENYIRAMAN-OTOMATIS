@@ -15,13 +15,12 @@
         <!-- Logo -->
         <ImageView
             android:id="@+id/logoImageView"
-            android:layout_width="180dp"
-            android:layout_height="180dp"
+            android:layout_width="223dp"
+            android:layout_height="213dp"
             android:layout_marginTop="60dp"
-            android:src="@drawable/login_logo"
-            android:background="@drawable/circle_background"
             android:elevation="6dp"
-            android:padding="16dp" />
+            android:padding="16dp"
+            android:src="@drawable/login_logo" />
 
         <!-- Input Email -->
         <EditText
