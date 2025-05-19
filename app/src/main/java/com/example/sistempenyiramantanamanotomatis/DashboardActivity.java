@@ -33,30 +33,31 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Bind Views
         progressMoisture = findViewById(R.id.progress_moisture);
-        txtProgressPercentage = findViewById(R.id.progress_text); // Pastikan ada TextView di layout
+        txtProgressPercentage = findViewById(R.id.progress_text);
         txtPumpStatus = findViewById(R.id.txt_pump_status);
         txtStatusTanah = findViewById(R.id.txt_status_tanah);
-        txtOnLabel = findViewById(R.id.text_on);  // Tambahkan ke XML jika belum ada
-        txtOffLabel = findViewById(R.id.text_off); // Tambahkan ke XML jika belum ada
+        txtOnLabel = findViewById(R.id.text_on);
+        txtOffLabel = findViewById(R.id.text_off);
         switchAuto = findViewById(R.id.switch_auto);
 
         // BottomNavigationView
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.navigation_dashboard:
-                    Toast.makeText(this, "Dashboard dipilih", Toast.LENGTH_SHORT).show();
-                    return true;
-                case R.id.navigation_history:
-                    Toast.makeText(this, "History dipilih", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, HistoryActivity.class));
-                    return true;
-                case R.id.navigation_profile:
-                    Toast.makeText(this, "Profile dipilih", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, ProfileActivity.class));
-                    return true;
-                default:
-                    return false;
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.navigation_dashboard) {
+                Toast.makeText(DashboardActivity.this, "Dashboard dipilih", Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (itemId == R.id.navigation_history) {
+                Toast.makeText(DashboardActivity.this, "History dipilih", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(DashboardActivity.this, HistoryActivity.class));
+                return true;
+            } else if (itemId == R.id.navigation_profile) {
+                Toast.makeText(DashboardActivity.this, "Profile dipilih", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(DashboardActivity.this, ProfileActivity.class));
+                return true;
+            } else {
+                return false;
             }
         });
 
