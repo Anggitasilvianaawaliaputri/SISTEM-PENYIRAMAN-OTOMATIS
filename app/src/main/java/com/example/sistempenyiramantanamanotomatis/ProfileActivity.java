@@ -2,9 +2,12 @@ package com.example.sistempenyiramantanamanotomatis;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,18 +23,18 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
-import java.util.UUID;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class ProfileActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
+    private static final String PROFILE_IMAGE_NAME = "profile_image.jpg";
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    private StorageReference storageRef;
 
     private ImageView profileImageView;
     private ImageView backButton;
@@ -44,43 +47,32 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Set the status bar color to transparent for full-screen experience
         getWindow().setStatusBarColor(Color.TRANSPARENT);
-
         setContentView(R.layout.activity_profile);
 
-        // Firebase initialization
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        storageRef = FirebaseStorage.getInstance().getReference();
 
-        // Initialize views
         profileImageView = findViewById(R.id.profile_image);
         backButton = findViewById(R.id.back_button);
         nameTextView = findViewById(R.id.name_text);
         emailTextView = findViewById(R.id.email_text);
         progressDialog = new ProgressDialog(this);
 
-        // Get the current user's Firebase ID
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             userId = currentUser.getUid();
             loadUserData(userId);
         }
 
-        // Set up profile image click listener
         profileImageView.setOnClickListener(v -> openImagePicker());
-
-        // Set up back button click listener
         backButton.setOnClickListener(v -> onBackPressed());
 
-        // Set up Bottom Navigation
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
-        bottomNavigationView.setSelectedItemId(R.id.navigation_profile); // Select current item
+        bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
         bottomNavigationView.setOnItemSelectedListener(this::onNavigationItemSelected);
     }
 
-    // Handle Bottom Navigation Item selection
     private boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.navigation_dashboard) {
@@ -95,23 +87,27 @@ public class ProfileActivity extends AppCompatActivity {
         return false;
     }
 
-    // Load user data from Firestore
     private void loadUserData(String uid) {
         DocumentReference userRef = db.collection("users").document(uid);
         userRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 String name = documentSnapshot.getString("nama");
                 String email = documentSnapshot.getString("email");
-                String photoUrl = documentSnapshot.getString("photoUrl");
 
                 nameTextView.setText(name);
                 emailTextView.setText(email);
 
-                // Load the profile image using Glide
-                if (photoUrl != null && !photoUrl.isEmpty()) {
-                    Glide.with(this).load(photoUrl).into(profileImageView);
+                File imageFile = new File(getFilesDir(), PROFILE_IMAGE_NAME);
+                if (imageFile.exists()) {
+                    Glide.with(this)
+                            .load(imageFile)
+                            .circleCrop()
+                            .into(profileImageView);
                 } else {
-                    profileImageView.setImageResource(R.drawable.my_profile_photo); // Default image
+                    Glide.with(this)
+                            .load(R.drawable.my_profile_photo)
+                            .circleCrop()
+                            .into(profileImageView);
                 }
             } else {
                 Toast.makeText(this, "Data user tidak ditemukan", Toast.LENGTH_SHORT).show();
@@ -121,7 +117,6 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-    // Open image picker for profile photo
     private void openImagePicker() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
@@ -134,41 +129,33 @@ public class ProfileActivity extends AppCompatActivity {
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri imageUri = data.getData();
-            uploadImageToFirebase(imageUri);
+            saveImageLocally(imageUri);
         }
     }
 
-    // Upload image to Firebase Storage
-    private void uploadImageToFirebase(Uri imageUri) {
-        progressDialog.setMessage("Mengupload foto...");
+    private void saveImageLocally(Uri imageUri) {
+        progressDialog.setMessage("Menyimpan foto...");
         progressDialog.show();
 
-        String fileName = "profile_photos/" + UUID.randomUUID().toString();
-        StorageReference fileRef = storageRef.child(fileName);
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
 
-        fileRef.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                    String photoUrl = uri.toString();
-                    updatePhotoUrlInFirestore(photoUrl);
-                }))
-                .addOnFailureListener(e -> {
-                    progressDialog.dismiss();
-                    Toast.makeText(this, "Gagal upload foto", Toast.LENGTH_SHORT).show();
-                });
-    }
+            File file = new File(getFilesDir(), PROFILE_IMAGE_NAME);
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+            fos.close();
 
-    // Update the photo URL in Firestore after upload
-    private void updatePhotoUrlInFirestore(String photoUrl) {
-        DocumentReference userRef = db.collection("users").document(userId);
-        userRef.update("photoUrl", photoUrl)
-                .addOnSuccessListener(unused -> {
-                    progressDialog.dismiss();
-                    Toast.makeText(this, "Foto berhasil diperbarui", Toast.LENGTH_SHORT).show();
-                    Glide.with(this).load(photoUrl).into(profileImageView);
-                })
-                .addOnFailureListener(e -> {
-                    progressDialog.dismiss();
-                    Toast.makeText(this, "Gagal update URL ke Firestore", Toast.LENGTH_SHORT).show();
-                });
+            progressDialog.dismiss();
+            Toast.makeText(this, "Foto berhasil disimpan secara lokal", Toast.LENGTH_SHORT).show();
+
+            Glide.with(this)
+                    .load(file)
+                    .circleCrop()
+                    .into(profileImageView);
+        } catch (IOException e) {
+            progressDialog.dismiss();
+            Toast.makeText(this, "Gagal menyimpan foto", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
     }
 }
