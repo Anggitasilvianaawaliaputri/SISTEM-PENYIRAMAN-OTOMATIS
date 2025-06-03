@@ -27,6 +27,8 @@ public class DashboardActivity extends AppCompatActivity {
     private TextView txtOnLabel, txtOffLabel;
     private SwitchMaterial switchAuto;
 
+    private DatabaseReference autoModeRef;
+
     private DatabaseReference moistureRef;
 
     @SuppressLint("NonConstantResourceId")
@@ -69,6 +71,8 @@ public class DashboardActivity extends AppCompatActivity {
         // Firebase Realtime Database reference
         moistureRef = FirebaseDatabase.getInstance("https://sistem-penyiraman-otomat-4bdd3-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("sensor/soil_moisture"); // Pastikan path data kelembaban di database adalah "moisture"
+        autoModeRef = FirebaseDatabase.getInstance("https://sistem-penyiraman-otomat-4bdd3-default-rtdb.asia-southeast1.firebasedatabase.app/")
+                .getReference("control/auto_mode");
 
         // Listen perubahan data kelembaban secara realtime
         moistureRef.addValueEventListener(new ValueEventListener() {
@@ -91,16 +95,25 @@ public class DashboardActivity extends AppCompatActivity {
         updateSwitchLabels(switchAuto.isChecked());
 
         switchAuto.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                Toast.makeText(this, "Penyiraman Otomatis Aktif", Toast.LENGTH_SHORT).show();
-                txtPumpStatus.setText("Pompa Menyala");
-            } else {
-                Toast.makeText(this, "Penyiraman Otomatis Nonaktif", Toast.LENGTH_SHORT).show();
-                txtPumpStatus.setText("Pompa Mati");
-            }
             updateSwitchLabels(isChecked);
+
+            // Simpan status switch ke Firebase
+            autoModeRef.setValue(isChecked)
+                    .addOnSuccessListener(aVoid -> {
+                        if (isChecked) {
+                            Toast.makeText(this, "Penyiraman Otomatis Aktif", Toast.LENGTH_SHORT).show();
+                            txtPumpStatus.setText("Pompa Menyala");
+                        } else {
+                            Toast.makeText(this, "Penyiraman Otomatis Nonaktif", Toast.LENGTH_SHORT).show();
+                            txtPumpStatus.setText("Pompa Mati");
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Gagal menyimpan status mode: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
         });
     }
+
 
     private void updateUIWithMoisture(int moisture) {
         progressMoisture.setProgress(moisture);
