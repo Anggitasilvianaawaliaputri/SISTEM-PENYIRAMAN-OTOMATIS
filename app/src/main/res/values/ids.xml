@@ -15,4 +15,5 @@
     <item name="txt_status_tanah" type="id" />
     <item name="bottom_nav" type="id" />
     <item name="progress_text" type="id" />
+    <item name="ic_notifications" type="id" />
 </resources>

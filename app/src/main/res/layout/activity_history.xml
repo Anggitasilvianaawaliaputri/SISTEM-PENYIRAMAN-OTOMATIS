@@ -33,6 +33,7 @@
             android:text="History"
             android:textColor="@android:color/white"
             android:textSize="22sp"
+            android:padding="16dp"
             android:textStyle="bold"
             android:layout_gravity="center"
             android:gravity="center" />
@@ -42,7 +43,8 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical|start"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginLeft="36dp"
             android:src="@drawable/back_button"
             android:contentDescription="Back Button"
             android:clickable="true"
