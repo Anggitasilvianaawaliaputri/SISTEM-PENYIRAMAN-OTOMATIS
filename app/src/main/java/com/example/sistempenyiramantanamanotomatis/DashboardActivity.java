@@ -3,9 +3,13 @@ package com.example.sistempenyiramantanamanotomatis;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.AlertDialog;
+import android.widget.ImageView;
+
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +30,7 @@ public class DashboardActivity extends AppCompatActivity {
     private TextView txtPumpStatus, txtStatusTanah;
     private TextView txtOnLabel, txtOffLabel;
     private SwitchMaterial switchAuto;
+    private ImageView iconNotification;
 
     private DatabaseReference moistureRef;
 
@@ -43,6 +48,7 @@ public class DashboardActivity extends AppCompatActivity {
         txtOnLabel = findViewById(R.id.text_on);
         txtOffLabel = findViewById(R.id.text_off);
         switchAuto = findViewById(R.id.switch_auto);
+        iconNotification = findViewById(R.id.btn_notifications);
 
         // BottomNavigationView setup
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
@@ -68,9 +74,9 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Firebase Realtime Database reference
         moistureRef = FirebaseDatabase.getInstance("https://sistem-penyiraman-otomat-4bdd3-default-rtdb.asia-southeast1.firebasedatabase.app/")
-                .getReference("sensor/soil_moisture"); // Pastikan path data kelembaban di database adalah "moisture"
+                .getReference("sensor/soil_moisture");
 
-        // Listen perubahan data kelembaban secara realtime
+        // Listener data realtime
         moistureRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -99,6 +105,16 @@ public class DashboardActivity extends AppCompatActivity {
                 txtPumpStatus.setText("Pompa Mati");
             }
             updateSwitchLabels(isChecked);
+        });
+
+        // Tombol lonceng notifikasi ditekan
+        iconNotification.setOnClickListener(view -> {
+            String statusPompa = txtPumpStatus.getText().toString();
+            new AlertDialog.Builder(DashboardActivity.this)
+                    .setTitle("Status Pompa")
+                    .setMessage("Status Pompa Saat Ini: " + statusPompa)
+                    .setPositiveButton("OK", null)
+                    .show();
         });
     }
 
