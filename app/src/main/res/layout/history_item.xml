@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="8dp"
+    android:layout_marginHorizontal="16dp"
+    android:elevation="6dp"
+    android:radius="12dp"
+    android:backgroundTint="@android:color/white"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Tanggal/Waktu -->
+        <TextView
+            android:id="@+id/txtTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="25 Juni 2025, 10:00"
+            android:textSize="16sp"
+            android:textColor="#0D4D22"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp" />
+
+        <!-- Kelembaban -->
+        <TextView
+            android:id="@+id/txtMoisture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kelembaban Tanah: 65%"
+            android:textSize="14sp"
+            android:textColor="#444444"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Status Pompa -->
+        <TextView
+            android:id="@+id/txtStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Status: ON"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_green_dark" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

@@ -3,12 +3,12 @@ package com.example.sistempenyiramantanamanotomatis;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +40,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView backButton;
     private TextView nameTextView, emailTextView;
     private ProgressDialog progressDialog;
+    private Button logoutButton;
 
     private String userId;
 
@@ -57,6 +58,7 @@ public class ProfileActivity extends AppCompatActivity {
         backButton = findViewById(R.id.back_button);
         nameTextView = findViewById(R.id.name_text);
         emailTextView = findViewById(R.id.email_text);
+        logoutButton = findViewById(R.id.btn_logout);
         progressDialog = new ProgressDialog(this);
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -67,6 +69,15 @@ public class ProfileActivity extends AppCompatActivity {
 
         profileImageView.setOnClickListener(v -> openImagePicker());
         backButton.setOnClickListener(v -> onBackPressed());
+
+        logoutButton.setOnClickListener(v -> {
+            mAuth.signOut();
+            Toast.makeText(ProfileActivity.this, "Berhasil logout", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
         bottomNavigationView.setSelectedItemId(R.id.navigation_profile);

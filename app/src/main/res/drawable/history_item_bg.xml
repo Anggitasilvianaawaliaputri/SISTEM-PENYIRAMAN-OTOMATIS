@@ -1,17 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-
-    <!-- Warna latar belakang -->
-    <solid android:color="#E8F5E9" /> <!-- Hijau muda, bisa disesuaikan -->
-
-    <!-- Radius sudut -->
-    <corners android:radius="12dp" />
-
-    <!-- Bayangan lembut (jika ingin efek bayangan bisa pakai elevation di View) -->
-    <padding
-        android:left="8dp"
-        android:top="8dp"
-        android:right="8dp"
-        android:bottom="8dp" />
+    <solid android:color="#E8F5E9" />
+    <corners android:radius="12dp"/>
+    <padding android:left="16dp" android:top="16dp" android:right="16dp" android:bottom="16dp"/>
 </shape>

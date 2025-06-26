@@ -3,9 +3,11 @@ package com.example.sistempenyiramantanamanotomatis;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.AlertDialog;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +21,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+
 public class DashboardActivity extends AppCompatActivity {
 
     private ProgressBar progressMoisture;
@@ -26,10 +33,11 @@ public class DashboardActivity extends AppCompatActivity {
     private TextView txtPumpStatus, txtStatusTanah;
     private TextView txtOnLabel, txtOffLabel;
     private SwitchMaterial switchAuto;
+    private ImageView iconNotification;
 
-    private DatabaseReference autoModeRef;
-
-    private DatabaseReference moistureRef;
+    private DatabaseReference moistureRef, autoModeRef, relayRef, historyRef;
+    private boolean sudahMenyiram = false;
+    private static final int AMBANG_KELEMBABAN = 60;
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -37,7 +45,6 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        // Bind Views
         progressMoisture = findViewById(R.id.progress_moisture);
         txtProgressPercentage = findViewById(R.id.progress_text);
         txtPumpStatus = findViewById(R.id.txt_pump_status);
@@ -45,42 +52,57 @@ public class DashboardActivity extends AppCompatActivity {
         txtOnLabel = findViewById(R.id.text_on);
         txtOffLabel = findViewById(R.id.text_off);
         switchAuto = findViewById(R.id.switch_auto);
+        iconNotification = findViewById(R.id.btn_notifications);
 
-        // BottomNavigationView setup
+        FirebaseDatabase db = FirebaseDatabase.getInstance("https://sistem-penyiraman-otomat-4bdd3-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        moistureRef = db.getReference("sensor/soil_moisture");
+        autoModeRef = db.getReference("control/auto_mode");
+        relayRef = db.getReference("control/relay");
+        historyRef = db.getReference("control/history");
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav);
         bottomNavigationView.setSelectedItemId(R.id.navigation_dashboard);
-
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-
-            if (itemId == R.id.navigation_dashboard) {
-                return true;
-            } else if (itemId == R.id.navigation_history) {
-                startActivity(new Intent(DashboardActivity.this, HistoryActivity.class));
+            if (item.getItemId() == R.id.navigation_dashboard) return true;
+            else if (item.getItemId() == R.id.navigation_history) {
+                startActivity(new Intent(this, HistoryActivity.class));
                 finish();
                 return true;
-            } else if (itemId == R.id.navigation_profile) {
-                startActivity(new Intent(DashboardActivity.this, ProfileActivity.class));
+            } else if (item.getItemId() == R.id.navigation_profile) {
+                startActivity(new Intent(this, ProfileActivity.class));
                 finish();
                 return true;
-            } else {
-                return false;
             }
+            return false;
         });
 
-        // Firebase Realtime Database reference
-        moistureRef = FirebaseDatabase.getInstance("https://sistem-penyiraman-otomat-4bdd3-default-rtdb.asia-southeast1.firebasedatabase.app/")
-                .getReference("sensor/soil_moisture"); // Pastikan path data kelembaban di database adalah "moisture"
-        autoModeRef = FirebaseDatabase.getInstance("https://sistem-penyiraman-otomat-4bdd3-default-rtdb.asia-southeast1.firebasedatabase.app/")
-                .getReference("control/auto_mode");
+        updateSwitchLabels(switchAuto.isChecked());
+        switchAuto.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            autoModeRef.setValue(isChecked);
+            Toast.makeText(this, isChecked ? "Penyiraman Otomatis Aktif" : "Penyiraman Otomatis Nonaktif", Toast.LENGTH_SHORT).show();
+            updateSwitchLabels(isChecked);
+        });
 
-        // Listen perubahan data kelembaban secara realtime
+        autoModeRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Boolean auto = snapshot.getValue(Boolean.class);
+                if (auto != null) switchAuto.setChecked(auto);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+
         moistureRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Integer moistureValue = snapshot.getValue(Integer.class);
                 if (moistureValue != null) {
                     updateUIWithMoisture(moistureValue);
+                    if (switchAuto.isChecked()) {
+                        handleAutoPenyiraman(moistureValue);
+                    }
                 } else {
                     Toast.makeText(DashboardActivity.this, "Data kelembaban kosong", Toast.LENGTH_SHORT).show();
                 }
@@ -92,43 +114,46 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        updateSwitchLabels(switchAuto.isChecked());
-
-        switchAuto.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            updateSwitchLabels(isChecked);
-
-            // Simpan status switch ke Firebase
-            autoModeRef.setValue(isChecked)
-                    .addOnSuccessListener(aVoid -> {
-                        if (isChecked) {
-                            Toast.makeText(this, "Penyiraman Otomatis Aktif", Toast.LENGTH_SHORT).show();
-                            txtPumpStatus.setText("Pompa Menyala");
-                        } else {
-                            Toast.makeText(this, "Penyiraman Otomatis Nonaktif", Toast.LENGTH_SHORT).show();
-                            txtPumpStatus.setText("Pompa Mati");
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Gagal menyimpan status mode: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
+        iconNotification.setOnClickListener(view -> {
+            String statusPompa = txtPumpStatus.getText().toString();
+            new AlertDialog.Builder(this)
+                    .setTitle("Status Pompa")
+                    .setMessage("Status Pompa Saat Ini: " + statusPompa)
+                    .setPositiveButton("OK", null)
+                    .show();
         });
     }
 
+    private void handleAutoPenyiraman(int moisture) {
+        if (moisture < AMBANG_KELEMBABAN) {
+            relayRef.setValue(true);
+            txtPumpStatus.setText("Pompa Menyala");
+            sudahMenyiram = true;
+        } else {
+            relayRef.setValue(false);
+            txtPumpStatus.setText("Pompa Mati");
+            if (sudahMenyiram) {
+                String tanggal = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                String id = historyRef.push().getKey();
+                if (id != null) {
+                    HashMap<String, Object> log = new HashMap<>();
+                    log.put("tanggal", tanggal);
+                    log.put("kelembaban", moisture);
+                    log.put("status", true);
+                    historyRef.child(id).setValue(log);
+                    Toast.makeText(this, "Penyiraman otomatis tercatat", Toast.LENGTH_SHORT).show();
+                }
+                sudahMenyiram = false;
+            }
+        }
+    }
 
     private void updateUIWithMoisture(int moisture) {
         progressMoisture.setProgress(moisture);
-        updateProgressText(moisture);
-        updateSoilStatus(moisture);
-    }
-
-    private void updateProgressText(int value) {
-        txtProgressPercentage.setText(value + "%");
-    }
-
-    private void updateSoilStatus(int moistureValue) {
-        if (moistureValue >= 70) {
+        txtProgressPercentage.setText(moisture + "%");
+        if (moisture >= 70) {
             txtStatusTanah.setText("Basah");
-        } else if (moistureValue >= 40) {
+        } else if (moisture >= 40) {
             txtStatusTanah.setText("Cukup");
         } else {
             txtStatusTanah.setText("Kering");
@@ -137,13 +162,9 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void updateSwitchLabels(boolean isChecked) {
         if (txtOnLabel == null || txtOffLabel == null) return;
-
-        if (isChecked) {
-            txtOnLabel.setTextColor(ContextCompat.getColor(this, android.R.color.white));
-            txtOffLabel.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray));
-        } else {
-            txtOnLabel.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray));
-            txtOffLabel.setTextColor(ContextCompat.getColor(this, android.R.color.white));
-        }
+        txtOnLabel.setTextColor(ContextCompat.getColor(this,
+                isChecked ? android.R.color.white : android.R.color.darker_gray));
+        txtOffLabel.setTextColor(ContextCompat.getColor(this,
+                isChecked ? android.R.color.darker_gray : android.R.color.white));
     }
 }
